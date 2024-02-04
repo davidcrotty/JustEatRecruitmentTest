@@ -233,10 +233,14 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 
             is PostCodeUIState.PostCodeLocateSuccess -> {
                 postCode.value = (state as PostCodeUIState.PostCodeLocateSuccess).postCode.text
+                results.value?.let {
+                    ResturantList(it)
+                }
             }
-
             else -> {
-
+                results.value?.let {
+                    ResturantList(it)
+                }
             }
         }
     }

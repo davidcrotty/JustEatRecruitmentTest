@@ -102,9 +102,9 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                     items(result.size) { index ->
                         val item = result[index]
                         Card(Modifier.fillMaxWidth().padding(8.dp)) {
-                            Text(text = item.name)
-                            Text(text = item.rating.toString())
-                            Text(text = item.typesOfFood)
+                            Text(text = item.name, Modifier.padding(4.dp))
+                            Text(text = "Rating: ${item.rating}", Modifier.padding(4.dp))
+                            Text(text = "Food types: ${item.typesOfFood}", Modifier.padding(4.dp))
                         }
                     }
                 }

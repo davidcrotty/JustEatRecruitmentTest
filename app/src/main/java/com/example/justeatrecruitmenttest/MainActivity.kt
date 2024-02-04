@@ -3,8 +3,10 @@ package com.example.justeatrecruitmenttest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,8 +25,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,9 +69,7 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 
     @Composable
     fun PostCodeForm(modifier: Modifier, value: String, textChanged: (String) -> Unit) {
-        Box(Modifier.fillMaxWidth()) {
-            TextField(modifier = modifier.fillMaxWidth(), value = value, onValueChange = textChanged)
-        }
+        TextField(modifier = modifier, value = value, onValueChange = textChanged)
     }
 
     @Composable
@@ -92,8 +96,13 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 
     Column(Modifier.padding(8.dp)) {
         Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
-        PostCodeForm(Modifier.padding(8.dp), postCode.value) {
-            postCode.value = it
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            PostCodeForm(Modifier.padding(8.dp).weight(1f), postCode.value) {
+                postCode.value = it
+            }
+            IconButton(onClick = { /*TODO*/ }) {
+                Image(painter = painterResource(R.drawable.my_location), contentDescription = "find location")
+            }
         }
         Button(onClick = { viewModel.searchPostCode(PostCode(postCode.value)) }, enabled = postCode.value.isNotEmpty()) {
             Text(stringResource(id = R.string.list_restaurants))

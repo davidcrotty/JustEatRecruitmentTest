@@ -1,12 +1,14 @@
 package com.example.justeatrecruitmenttest
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.justeatrecruitmenttest.domain.RestuarantRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class PostCodeViewModel : ViewModel() {
+class PostCodeViewModel(private val repository: RestuarantRepository) : ViewModel() {
 
     private val postCodePattern = """([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})"""
 
@@ -16,11 +18,13 @@ class PostCodeViewModel : ViewModel() {
     private val _uiState: MutableStateFlow<PostCodeUIState> = MutableStateFlow(PostCodeUIState.Initial)
 
     fun searchPostCode(postcode: PostCode) {
-        if (postcode.text.matches(Regex(postCodePattern))) {
-            // API call
-            _uiState.value = PostCodeUIState.Loading
-        } else {
-            _uiState.value = PostCodeUIState.Error("invalid Postcode")
+        viewModelScope.launch {
+            if (postcode.text.matches(Regex(postCodePattern))) {
+                // API call
+                _uiState.value = PostCodeUIState.Loading
+            } else {
+                _uiState.value = PostCodeUIState.Error("invalid Postcode")
+            }
         }
     }
 

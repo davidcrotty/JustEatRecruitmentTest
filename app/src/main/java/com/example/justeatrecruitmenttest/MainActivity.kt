@@ -33,11 +33,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import com.example.justeatrecruitmenttest.di.PostCodeModule
 import com.example.justeatrecruitmenttest.ui.theme.JustEatRecruitmentTestTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val postCodeViewModel by viewModels<PostCodeViewModel>()
+    private val module = PostCodeModule()
+
+    private val postCodeViewModel by lazy {
+        ViewModelProvider(
+            this,
+            module.viewModelFactory()
+        ).get(PostCodeViewModel::class.java)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -94,6 +103,6 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 @Composable
 @Preview
 fun PostCodePreview() {
-    PostCodeScreen(PostCodeViewModel())
+    PostCodeScreen(PostCodeViewModel(PostCodeModule().repo()))
 }
 

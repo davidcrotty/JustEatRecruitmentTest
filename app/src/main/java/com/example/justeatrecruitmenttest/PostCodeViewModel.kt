@@ -36,7 +36,7 @@ class PostCodeViewModel(private val repository: RestuarantRepository) : ViewMode
                     _uiState.value = PostCodeUIState.Error("Unable to fetch resturants")
                 }
             } else {
-                _uiState.value = PostCodeUIState.Error("invalid Postcode")
+                _uiState.value = PostCodeUIState.Error("Invalid postcode")
             }
         }
     }

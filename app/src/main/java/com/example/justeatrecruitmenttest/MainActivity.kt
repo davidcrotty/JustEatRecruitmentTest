@@ -1,6 +1,8 @@
 package com.example.justeatrecruitmenttest
 
 import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,22 +39,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.justeatrecruitmenttest.di.PostCodeModule
+import com.example.justeatrecruitmenttest.frameworks.LocationFetcher
 import com.example.justeatrecruitmenttest.ui.theme.JustEatRecruitmentTestTheme
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.Exception
+import java.util.concurrent.Executors
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), LocationFetcher {
 
     private val module = PostCodeModule()
+    private val geoCoder by lazy { Geocoder(this) }
 
     private val postCodeViewModel by lazy {
         ViewModelProvider(
             this,
-            module.viewModelFactory()
+            module.viewModelFactory(this)
         ).get(PostCodeViewModel::class.java)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             JustEatRecruitmentTestTheme {
                 // A surface container using the 'background' color from the theme
@@ -64,6 +82,52 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun requestLocation(callback: (Result<PostCode>) -> Unit) {
+        val client = LocationServices.getFusedLocationProviderClient(this)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+            .setWaitForAccurateLocation(false)
+            .setMinUpdateIntervalMillis(1000)
+            .setMaxUpdateDelayMillis(5000)
+            .build()
+
+        client.requestLocationUpdates(request, Executors.newSingleThreadExecutor(), object:
+            LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                    lifecycleScope.launch(Dispatchers.Default) {
+                        val lastLocation = locationResult.lastLocation
+                        if (lastLocation != null) {
+                            val result = geoCoder.getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
+                            withContext(Dispatchers.Main) {
+                                if (result?.isEmpty() == true) {
+                                    callback(Result.failure<PostCode>(Exception("Postcode not found")))
+                                } else {
+                                    val firstAddress = result?.first()
+                                    val postCode = firstAddress?.postalCode
+                                    if (postCode == null) {
+                                        callback(Result.failure<PostCode>(Exception("No address found")))
+                                    } else {
+                                        callback(Result.success(PostCode(postCode)))
+                                    }
+                                }
+                            }
+                        }
+                    }
+               client.removeLocationUpdates(this)
+            }
+        })
     }
 }
 
@@ -99,7 +163,7 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { locationResultGranted ->
             if (locationResultGranted) {
-                // fire off postcode search
+                viewModel.requestLocation()
             }
         })
 
@@ -138,6 +202,9 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                 Text(text = "Search results for: ${result.searched.text}", Modifier.padding(4.dp))
                 ResturantList(result.resturants)
             }
+            is PostCodeUIState.PostCodeLocateSuccess -> {
+                postCode.value = (state as PostCodeUIState.PostCodeLocateSuccess).postCode.text
+            }
             else -> {
 
             }
@@ -148,6 +215,10 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 @Composable
 @Preview
 fun PostCodePreview() {
-    PostCodeScreen(PostCodeViewModel(PostCodeModule().repo()))
+    PostCodeScreen(PostCodeViewModel(PostCodeModule().repo(), object : LocationFetcher {
+        override fun requestLocation(callback: (Result<PostCode>) -> Unit) {
+            callback(Result.success(PostCode("BS378UL")))
+        }
+    }))
 }
 

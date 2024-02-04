@@ -3,11 +3,13 @@ package com.example.justeatrecruitmenttest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.justeatrecruitmenttest.domain.RestuarantRepository
+import com.example.justeatrecruitmenttest.frameworks.LocationFetcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PostCodeViewModel(private val repository: RestuarantRepository) : ViewModel() {
+class PostCodeViewModel(private val repository: RestuarantRepository,
+    private val locationFetcher: LocationFetcher) : ViewModel() {
 
     private val postCodePattern =
         """([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})"""
@@ -41,6 +43,14 @@ class PostCodeViewModel(private val repository: RestuarantRepository) : ViewMode
         }
     }
 
+    fun requestLocation() {
+        locationFetcher.requestLocation {
+            if (it.isSuccess) {
+                _uiState.value = PostCodeUIState.PostCodeLocateSuccess(postCode = PostCode(it.getOrNull()?.text.orEmpty()))
+            }
+        }
+    }
+
 }
 
 sealed class PostCodeUIState {
@@ -48,6 +58,8 @@ sealed class PostCodeUIState {
     object Initial : PostCodeUIState()
     object Loading : PostCodeUIState()
     class Error(val message: String) : PostCodeUIState()
+
+    class PostCodeLocateSuccess(val postCode: PostCode): PostCodeUIState()
 
     class Success(val resturants: List<ResturantModel>, val searched: PostCode) : PostCodeUIState()
 }

@@ -6,6 +6,7 @@ import com.example.justeatrecruitmenttest.PostCodeViewModel
 import com.example.justeatrecruitmenttest.data.RestaurantRepositoryImpl
 import com.example.justeatrecruitmenttest.data.RestuarantService
 import com.example.justeatrecruitmenttest.domain.RestuarantRepository
+import com.example.justeatrecruitmenttest.frameworks.LocationFetcher
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -22,11 +23,11 @@ class PostCodeModule {
             .create(RestuarantService::class.java)
     }
 
-    fun viewModelFactory() = Factory(repo())
+    fun viewModelFactory(locationFetcher: LocationFetcher) = Factory(repo(), locationFetcher)
 
-    class Factory(private val repo: RestuarantRepository) : ViewModelProvider.Factory {
+    class Factory(private val repo: RestuarantRepository, private val locationFetcher: LocationFetcher) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return PostCodeViewModel(repo) as T
+            return PostCodeViewModel(repo, locationFetcher) as T
         }
     }
 }

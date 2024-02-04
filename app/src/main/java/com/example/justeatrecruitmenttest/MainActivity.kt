@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -162,21 +163,14 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 
         Column {
             Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextField(modifier = modifier.weight(1f), value = value, onValueChange = textChanged)
-                when (state) {
-                    is PostCodeUIState.PostCodeLocateLoading -> {
-                        CircularProgressIndicator()
-                    }
-                    else -> {
-                        IconButton(onClick = {
-                            launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                        }) {
-                            Image(
-                                painter = painterResource(R.drawable.my_location),
-                                contentDescription = "find location"
-                            )
-                        }
+            TextField(value = value, onValueChange = textChanged)
+            when (state) {
+                is PostCodeUIState.PostCodeLocateLoading -> {
+                    CircularProgressIndicator()
+                }
+                else -> {
+                    TextButton(onClick = { viewModel.requestLocation() }) {
+                        Text(text = "auto detect outcode")
                     }
                 }
             }
@@ -208,7 +202,9 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                                 .build(),
                             contentDescription = stringResource(R.string.logo_description),
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier.clip(RoundedCornerShape(4.dp)).padding(8.dp)
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .padding(8.dp)
                         )
                         Column {
                             Text(text = item.name, Modifier.padding(4.dp))

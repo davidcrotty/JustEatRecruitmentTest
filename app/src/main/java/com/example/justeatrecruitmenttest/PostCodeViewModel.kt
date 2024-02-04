@@ -48,7 +48,9 @@ class PostCodeViewModel(private val repository: RestuarantRepository,
         _uiState.value = PostCodeUIState.PostCodeLocateLoading
         locationFetcher.requestLocation {
             if (it.isSuccess) {
-                _uiState.value = PostCodeUIState.PostCodeLocateSuccess(postCode = PostCode(it.getOrNull()?.text.orEmpty()))
+                val postCode = PostCode(it.getOrNull()?.text.orEmpty())
+                _uiState.value = PostCodeUIState.PostCodeLocateSuccess(postCode = postCode)
+                searchPostCode(postCode)
             }
         }
     }

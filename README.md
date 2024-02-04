@@ -3,6 +3,27 @@
 # How long did you spend on the coding test? What would you add to your solution if you had more time? If you didn't spend much time on the coding test then use this as an opportunity to explain what you would add.
 
 # What was the most useful feature that was added to the latest version of your chosen language? Please include a snippet of code that shows how you've used it.
+* Value class feature. Inlines classes to their primitives whilst also protects against the primitive obsession codesmell.
+```
+@JvmInline
+value class PostCode(val text: String)
+```
+
+* Compose inner functions, allowing ability to scope functions in other functions to communicate their visibility
+```
+@Composable
+fun PostCodeScreen(viewModel: PostCodeViewModel) {
+
+    @Composable
+    fun PostCodeForm(modifier: Modifier, state: PostCodeUIState, value: String, postCode: MutableState<String>, textChanged: (String) -> Unit) {
+     // impl
+    }
+
+    PostCodeForm(Modifier, state = state, value = postCode.value, postCode = postCode, textChanged = {
+        postCode.value = it
+    })
+}
+```
 
 # How would you track down a performance issue in production? Have you ever had to do this?
 * Google play console for startup times. Can implement has drawn functionality to define when the app has started up manually.

@@ -2,15 +2,13 @@ package com.example.justeatrecruitmenttest.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.justeatrecruitmenttest.PostCodeViewModel
+import com.example.justeatrecruitmenttest.presentation.PostCodeViewModel
 import com.example.justeatrecruitmenttest.data.RestaurantRepositoryImpl
 import com.example.justeatrecruitmenttest.data.RestuarantService
 import com.example.justeatrecruitmenttest.domain.RestuarantRepository
 import com.example.justeatrecruitmenttest.frameworks.LocationFetcher
-import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 class PostCodeModule {
     fun repo(): RestuarantRepository = RestaurantRepositoryImpl(restuarantService())

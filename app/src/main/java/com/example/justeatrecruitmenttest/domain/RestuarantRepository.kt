@@ -1,6 +1,6 @@
 package com.example.justeatrecruitmenttest.domain
 
-import com.example.justeatrecruitmenttest.PostCode
+import com.example.justeatrecruitmenttest.presentation.PostCode
 
 interface RestuarantRepository {
 

@@ -1,6 +1,6 @@
 package com.example.justeatrecruitmenttest.data
 
-import com.example.justeatrecruitmenttest.PostCode
+import com.example.justeatrecruitmenttest.presentation.PostCode
 import com.example.justeatrecruitmenttest.domain.RestuarantRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

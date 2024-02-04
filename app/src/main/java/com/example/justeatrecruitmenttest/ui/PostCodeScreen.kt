@@ -1,5 +1,6 @@
 package com.example.justeatrecruitmenttest.ui
 
+import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -60,7 +61,7 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                     CircularProgressIndicator()
                 }
                 else -> {
-                    TextButton(onClick = { viewModel.requestLocation() }) {
+                    TextButton(onClick = { launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION) }) {
                         Text(text = "auto detect outcode")
                     }
                 }

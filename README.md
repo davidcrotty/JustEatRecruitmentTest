@@ -5,6 +5,11 @@
 # What was the most useful feature that was added to the latest version of your chosen language? Please include a snippet of code that shows how you've used it.
 
 # How would you track down a performance issue in production? Have you ever had to do this?
+* Google play console for startup times. Can implement has drawn functionality to define when the app has started up manually.
+* ANRs google play console
+* Performance SDK (ie: Firebase performance) Add traces for scenarios, ie vm fetch starts trace, ends trace on result.
+* Out of the box measures endpoint latency to explore if within SLAs for backend
+* Use backend tooling like log explorer to export and query trends over time for latency.
 
 # How would you improve the Just Eat APIs that you just used?
 * https on logo urls

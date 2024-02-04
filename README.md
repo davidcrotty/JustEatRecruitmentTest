@@ -1,6 +1,17 @@
 
 
 # How long did you spend on the coding test? What would you add to your solution if you had more time? If you didn't spend much time on the coding test then use this as an opportunity to explain what you would add.
+* Time spent: 3 hours
+* Unit tests for logic in VM and Repo
+* Composable tests to verify behaviour of screen
+* Snapshot UI tests to prevent UI regressions
+* Snapshot tests for backend to have early warning on any backend API changes and keep documentation on expected behaviour for version.
+* DI Framework, manual DI won't scale due to classes being created increasing as application grows
+* Add a datasource to decouple technologies from the Repository (should keep it for mediation and core business logic policy).
+* Add cases for location finding failure (ie lat/long being null, timeout for no location)
+* Extract hard coded values into strings and dimens for localisation and re-use
+* Error handling, logging, traceability and observability
+* Consider multi module depending on scope of application, App would compose other modules via abstraction (ie: Repo interface would live in domain module, a feature module for PostCode would be created and may implement said interface)
 
 # What was the most useful feature that was added to the latest version of your chosen language? Please include a snippet of code that shows how you've used it.
 * Value class feature. Inlines classes to their primitives whilst also protects against the primitive obsession codesmell.

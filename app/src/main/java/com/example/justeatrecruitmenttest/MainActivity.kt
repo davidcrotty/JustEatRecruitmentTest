@@ -1,8 +1,11 @@
 package com.example.justeatrecruitmenttest
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,16 +94,27 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 
     val state by viewModel.uiState.collectAsState()
     val results = remember { mutableStateOf<List<ResturantModel>?>(null) }
-
     val postCode = remember { mutableStateOf("") }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { locationResultGranted ->
+            if (locationResultGranted) {
+                // fire off postcode search
+            }
+        })
 
     Column(Modifier.padding(8.dp)) {
         Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            PostCodeForm(Modifier.padding(8.dp).weight(1f), postCode.value) {
+            PostCodeForm(
+                Modifier
+                    .padding(8.dp)
+                    .weight(1f), postCode.value) {
                 postCode.value = it
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {
+                launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            }) {
                 Image(painter = painterResource(R.drawable.my_location), contentDescription = "find location")
             }
         }

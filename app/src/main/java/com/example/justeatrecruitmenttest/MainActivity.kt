@@ -26,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -142,8 +143,40 @@ class MainActivity : ComponentActivity(), LocationFetcher {
 fun PostCodeScreen(viewModel: PostCodeViewModel) {
 
     @Composable
-    fun PostCodeForm(modifier: Modifier, value: String, textChanged: (String) -> Unit) {
+    fun PostCodeForm(modifier: Modifier, state:PostCodeUIState, value: String, postCode: MutableState<String>, textChanged: (String) -> Unit) {
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { locationResultGranted ->
+                if (locationResultGranted) {
+                    viewModel.requestLocation()
+                }
+            })
+
         TextField(modifier = modifier, value = value, onValueChange = textChanged)
+        Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            when (state) {
+                is PostCodeUIState.PostCodeLocateLoading -> {
+                    CircularProgressIndicator()
+                }
+                else -> {
+                    IconButton(onClick = {
+                        launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                    }) {
+                        Image(
+                            painter = painterResource(R.drawable.my_location),
+                            contentDescription = "find location"
+                        )
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = { viewModel.searchPostCode(PostCode(postCode.value)) },
+            enabled = postCode.value.isNotEmpty() && state != PostCodeUIState.PostCodeLocateLoading
+        ) {
+            Text(stringResource(id = R.string.list_restaurants))
+        }
     }
 
     @Composable
@@ -167,47 +200,11 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
     val state by viewModel.uiState.collectAsState()
     val results = remember { mutableStateOf<List<ResturantModel>?>(null) }
     val postCode = remember { mutableStateOf("") }
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { locationResultGranted ->
-            if (locationResultGranted) {
-                viewModel.requestLocation()
-            }
-        })
 
     Column(Modifier.padding(8.dp)) {
-        Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            PostCodeForm(
-                Modifier
-                    .padding(8.dp)
-                    .weight(1f), postCode.value
-            ) {
-                postCode.value = it
-            }
-            when (state) {
-                is PostCodeUIState.PostCodeLocateLoading -> {
-                    CircularProgressIndicator()
-                }
-                else -> {
-                    IconButton(onClick = {
-                        launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                    }) {
-                        Image(
-                            painter = painterResource(R.drawable.my_location),
-                            contentDescription = "find location"
-                        )
-                    }
-                }
-            }
-        }
-        Button(
-            onClick = { viewModel.searchPostCode(PostCode(postCode.value)) },
-            enabled = postCode.value.isNotEmpty() && state != PostCodeUIState.PostCodeLocateLoading
-        ) {
-            Text(stringResource(id = R.string.list_restaurants))
-        }
-
+        PostCodeForm(Modifier, state = state, value = postCode.value, postCode = postCode, textChanged = {
+            postCode.value = it
+        })
         when (state) {
             is PostCodeUIState.Error -> {
                 Text(

@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +63,9 @@ fun PostCodeScreen() {
         Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
         PostCodeForm(Modifier.padding(8.dp), postCode.value) {
             postCode.value = it
+        }
+        Button(onClick = { /*TODO*/ }, enabled = postCode.value.isNotEmpty()) {
+            Text("List Restuarants")
         }
     }
 }

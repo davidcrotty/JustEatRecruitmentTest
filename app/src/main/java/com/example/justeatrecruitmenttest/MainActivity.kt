@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -92,6 +95,19 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
             }
             is PostCodeUIState.Loading -> {
                 CircularProgressIndicator()
+            }
+            is PostCodeUIState.Success -> {
+                val result = (state as PostCodeUIState.Success).result
+                LazyColumn(state = rememberLazyListState()) {
+                    items(result.size) { index ->
+                        val item = result[index]
+                        Card(Modifier.fillMaxWidth().padding(8.dp)) {
+                            Text(text = item.name)
+                            Text(text = item.rating.toString())
+                            Text(text = item.typesOfFood)
+                        }
+                    }
+                }
             }
             else -> {
 

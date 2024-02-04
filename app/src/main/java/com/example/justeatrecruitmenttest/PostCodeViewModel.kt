@@ -24,11 +24,11 @@ class PostCodeViewModel(private val repository: RestuarantRepository) : ViewMode
             if (postcode.text.matches(Regex(postCodePattern))) {
                 // API call
                 _uiState.value = PostCodeUIState.Loading
-                repository.getRestuarants().onSuccess { resturants ->
+                repository.getRestuarants(postcode).onSuccess { resturants ->
                     val listItems = resturants.map {
                       ResturantModel(
                           name = it.name,
-                          rating = it.rating,
+                          rating = it.rating.toString(),
                           typesOfFood = it.foodTypes.map { it.type }.reduce { acc, s -> "$acc, $s" }
                       )
                     }
@@ -53,7 +53,7 @@ sealed class PostCodeUIState {
     class Success(val result: List<ResturantModel>) : PostCodeUIState()
 }
 
-data class ResturantModel(val name: String, val rating: Int, val typesOfFood: String)
+data class ResturantModel(val name: String, val rating: String, val typesOfFood: String)
 
 @JvmInline
 value class PostCode(val text: String)

@@ -152,31 +152,34 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                 }
             })
 
-        TextField(modifier = modifier, value = value, onValueChange = textChanged)
-        Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            when (state) {
-                is PostCodeUIState.PostCodeLocateLoading -> {
-                    CircularProgressIndicator()
-                }
-                else -> {
-                    IconButton(onClick = {
-                        launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-                    }) {
-                        Image(
-                            painter = painterResource(R.drawable.my_location),
-                            contentDescription = "find location"
-                        )
+        Column {
+            Text(modifier = Modifier.padding(8.dp), text = stringResource(id = R.string.postcode_label))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextField(modifier = modifier.weight(1f), value = value, onValueChange = textChanged)
+                when (state) {
+                    is PostCodeUIState.PostCodeLocateLoading -> {
+                        CircularProgressIndicator()
+                    }
+                    else -> {
+                        IconButton(onClick = {
+                            launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                        }) {
+                            Image(
+                                painter = painterResource(R.drawable.my_location),
+                                contentDescription = "find location"
+                            )
+                        }
                     }
                 }
             }
+            Button(
+                onClick = { viewModel.searchPostCode(PostCode(postCode.value)) },
+                enabled = postCode.value.isNotEmpty() && state != PostCodeUIState.PostCodeLocateLoading
+            ) {
+                Text(stringResource(id = R.string.list_restaurants))
+            }
         }
-        Button(
-            onClick = { viewModel.searchPostCode(PostCode(postCode.value)) },
-            enabled = postCode.value.isNotEmpty() && state != PostCodeUIState.PostCodeLocateLoading
-        ) {
-            Text(stringResource(id = R.string.list_restaurants))
-        }
+
     }
 
     @Composable

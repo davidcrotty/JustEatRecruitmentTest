@@ -26,15 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.justeatrecruitmenttest.R
 import com.example.justeatrecruitmenttest.di.PostCodeModule
+import com.example.justeatrecruitmenttest.frameworks.ImageLoader
 import com.example.justeatrecruitmenttest.frameworks.LocationFetcher
 import com.example.justeatrecruitmenttest.presentation.PostCode
 import com.example.justeatrecruitmenttest.presentation.PostCodeUIState
@@ -88,17 +86,12 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                         .padding(8.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(item.logoUrl)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = stringResource(R.string.logo_description),
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .padding(8.dp)
-                        )
+                        ImageLoader(Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .padding(8.dp),
+                            item.logoUrl,
+                            stringResource(R.string.logo_description),
+                            ContentScale.Crop)
                         Column {
                             Text(text = item.name, Modifier.padding(4.dp))
                             Text(text = "Rating: ${item.rating}", Modifier.padding(4.dp))

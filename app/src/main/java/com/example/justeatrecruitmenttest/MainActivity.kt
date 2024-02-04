@@ -65,7 +65,7 @@ fun PostCodeScreen() {
             postCode.value = it
         }
         Button(onClick = { /*TODO*/ }, enabled = postCode.value.isNotEmpty()) {
-            Text("List Restuarants")
+            Text(stringResource(id = R.string.list_restaurants))
         }
     }
 }

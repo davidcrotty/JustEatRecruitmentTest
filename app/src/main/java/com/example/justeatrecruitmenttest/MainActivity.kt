@@ -52,6 +52,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Exception
@@ -68,6 +69,7 @@ class MainActivity : ComponentActivity(), LocationFetcher {
             module.viewModelFactory(this)
         ).get(PostCodeViewModel::class.java)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -103,29 +105,34 @@ class MainActivity : ComponentActivity(), LocationFetcher {
             .setMaxUpdateDelayMillis(5000)
             .build()
 
-        client.requestLocationUpdates(request, Executors.newSingleThreadExecutor(), object:
+        client.requestLocationUpdates(request, Executors.newSingleThreadExecutor(), object :
             LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                    lifecycleScope.launch(Dispatchers.Default) {
-                        val lastLocation = locationResult.lastLocation
-                        if (lastLocation != null) {
-                            val result = geoCoder.getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
-                            withContext(Dispatchers.Main) {
-                                if (result?.isEmpty() == true) {
-                                    callback(Result.failure<PostCode>(Exception("Postcode not found")))
+                lifecycleScope.launch(Dispatchers.Default) {
+                    delay(2000)
+                    val lastLocation = locationResult.lastLocation
+                    if (lastLocation != null) {
+                        val result = geoCoder.getFromLocation(
+                            lastLocation.latitude,
+                            lastLocation.longitude,
+                            1
+                        )
+                        withContext(Dispatchers.Main) {
+                            if (result?.isEmpty() == true) {
+                                callback(Result.failure<PostCode>(Exception("Postcode not found")))
+                            } else {
+                                val firstAddress = result?.first()
+                                val postCode = firstAddress?.postalCode
+                                if (postCode == null) {
+                                    callback(Result.failure<PostCode>(Exception("No address found")))
                                 } else {
-                                    val firstAddress = result?.first()
-                                    val postCode = firstAddress?.postalCode
-                                    if (postCode == null) {
-                                        callback(Result.failure<PostCode>(Exception("No address found")))
-                                    } else {
-                                        callback(Result.success(PostCode(postCode)))
-                                    }
+                                    callback(Result.success(PostCode(postCode)))
                                 }
                             }
                         }
                     }
-               client.removeLocationUpdates(this)
+                }
+                client.removeLocationUpdates(this)
             }
         })
     }
@@ -147,7 +154,8 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                 Card(
                     Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)) {
+                        .padding(8.dp)
+                ) {
                     Text(text = item.name, Modifier.padding(4.dp))
                     Text(text = "Rating: ${item.rating}", Modifier.padding(4.dp))
                     Text(text = "Food types: ${item.typesOfFood}", Modifier.padding(4.dp))
@@ -173,38 +181,60 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
             PostCodeForm(
                 Modifier
                     .padding(8.dp)
-                    .weight(1f), postCode.value) {
+                    .weight(1f), postCode.value
+            ) {
                 postCode.value = it
             }
-            IconButton(onClick = {
-                launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-            }) {
-                Image(painter = painterResource(R.drawable.my_location), contentDescription = "find location")
+            when (state) {
+                is PostCodeUIState.PostCodeLocateLoading -> {
+                    CircularProgressIndicator()
+                }
+                else -> {
+                    IconButton(onClick = {
+                        launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                    }) {
+                        Image(
+                            painter = painterResource(R.drawable.my_location),
+                            contentDescription = "find location"
+                        )
+                    }
+                }
             }
         }
-        Button(onClick = { viewModel.searchPostCode(PostCode(postCode.value)) }, enabled = postCode.value.isNotEmpty()) {
+        Button(
+            onClick = { viewModel.searchPostCode(PostCode(postCode.value)) },
+            enabled = postCode.value.isNotEmpty() && state != PostCodeUIState.PostCodeLocateLoading
+        ) {
             Text(stringResource(id = R.string.list_restaurants))
         }
 
         when (state) {
             is PostCodeUIState.Error -> {
-                Text((state as PostCodeUIState.Error).message, style = TextStyle(color = Color.Red), modifier = Modifier.padding(8.dp))
+                Text(
+                    (state as PostCodeUIState.Error).message,
+                    style = TextStyle(color = Color.Red),
+                    modifier = Modifier.padding(8.dp)
+                )
                 results.value?.let {
                     ResturantList(it)
                 }
             }
+
             is PostCodeUIState.Loading -> {
                 CircularProgressIndicator()
             }
+
             is PostCodeUIState.Success -> {
                 val result = (state as PostCodeUIState.Success)
                 results.value = result.resturants
                 Text(text = "Search results for: ${result.searched.text}", Modifier.padding(4.dp))
                 ResturantList(result.resturants)
             }
+
             is PostCodeUIState.PostCodeLocateSuccess -> {
                 postCode.value = (state as PostCodeUIState.PostCodeLocateSuccess).postCode.text
             }
+
             else -> {
 
             }

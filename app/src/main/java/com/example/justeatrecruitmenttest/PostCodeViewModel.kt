@@ -44,6 +44,7 @@ class PostCodeViewModel(private val repository: RestuarantRepository,
     }
 
     fun requestLocation() {
+        _uiState.value = PostCodeUIState.PostCodeLocateLoading
         locationFetcher.requestLocation {
             if (it.isSuccess) {
                 _uiState.value = PostCodeUIState.PostCodeLocateSuccess(postCode = PostCode(it.getOrNull()?.text.orEmpty()))
@@ -59,6 +60,7 @@ sealed class PostCodeUIState {
     object Loading : PostCodeUIState()
     class Error(val message: String) : PostCodeUIState()
 
+    object PostCodeLocateLoading : PostCodeUIState()
     class PostCodeLocateSuccess(val postCode: PostCode): PostCodeUIState()
 
     class Success(val resturants: List<ResturantModel>, val searched: PostCode) : PostCodeUIState()

@@ -14,11 +14,14 @@ class RestaurantRepositoryImpl(private val resturantService: RestuarantService,
             try {
                 val response = resturantService.restuarantsByPostcode(postcode.text)
                 if (response.isSuccessful) {
-                    val resturants = response.body()?.resturants?.mapNotNull {
+                    val resturants = response.body()?.resturants
+                        ?.filter { it.isOpenNow }
+                        ?.map {
                         RestuarantRepository.ResturantEntity(
                             name = it.name.orEmpty(),
                             rating = it.ratingStars ?: 0.0,
-                            foodTypes = it.cuisines.map { RestuarantRepository.FoodType(it.name.orEmpty()) }
+                            foodTypes = it.cuisines.map { RestuarantRepository.FoodType(it.name.orEmpty()) },
+                            logoUrl = it.logoUrl
                         )
                     }
                     Result.success(resturants.orEmpty())

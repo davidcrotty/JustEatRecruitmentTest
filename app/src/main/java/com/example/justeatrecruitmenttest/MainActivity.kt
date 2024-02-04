@@ -14,9 +14,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,8 +37,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -43,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.justeatrecruitmenttest.di.PostCodeModule
 import com.example.justeatrecruitmenttest.frameworks.LocationFetcher
 import com.example.justeatrecruitmenttest.ui.theme.JustEatRecruitmentTestTheme
@@ -110,7 +119,6 @@ class MainActivity : ComponentActivity(), LocationFetcher {
             LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 lifecycleScope.launch(Dispatchers.Default) {
-                    delay(2000)
                     val lastLocation = locationResult.lastLocation
                     if (lastLocation != null) {
                         val result = geoCoder.getFromLocation(
@@ -184,7 +192,7 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 
     @Composable
     fun ResturantList(result: List<ResturantModel>) {
-        LazyColumn(state = rememberLazyListState()) {
+        LazyColumn(state = rememberLazyListState()) { 
             items(result.size) { index ->
                 val item = result[index]
                 Card(
@@ -192,9 +200,22 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
                         .fillMaxWidth()
                         .padding(8.dp)
                 ) {
-                    Text(text = item.name, Modifier.padding(4.dp))
-                    Text(text = "Rating: ${item.rating}", Modifier.padding(4.dp))
-                    Text(text = "Food types: ${item.typesOfFood}", Modifier.padding(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(item.logoUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = stringResource(R.string.logo_description),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.clip(RoundedCornerShape(4.dp)).padding(8.dp)
+                        )
+                        Column {
+                            Text(text = item.name, Modifier.padding(4.dp))
+                            Text(text = "Rating: ${item.rating}", Modifier.padding(4.dp))
+                            Text(text = "Food types: ${item.typesOfFood}", Modifier.padding(4.dp))
+                        }
+                    }
                 }
             }
         }
@@ -227,7 +248,7 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
             is PostCodeUIState.Success -> {
                 val result = (state as PostCodeUIState.Success)
                 results.value = result.resturants
-                Text(text = "Search results for: ${result.searched.text}", Modifier.padding(4.dp))
+                Text(text = "Open restaurant search results for: ${result.searched.text}", Modifier.padding(4.dp))
                 ResturantList(result.resturants)
             }
 

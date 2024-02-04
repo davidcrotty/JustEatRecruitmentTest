@@ -2,4 +2,5 @@
     <string name="app_name">JustEatRecruitmentTest</string>
     <string name="postcode_label">Enter Postcode</string>
     <string name="list_restaurants">List Restaurants </string>
+    <string name="logo_description">Restaurant Logo</string>
 </resources>

@@ -4,7 +4,7 @@ import com.example.justeatrecruitmenttest.PostCode
 
 interface RestuarantRepository {
 
-    data class ResturantEntity(val name: String, val rating: Double, val foodTypes: List<FoodType>)
+    data class ResturantEntity(val name: String, val rating: Double, val foodTypes: List<FoodType>, val logoUrl: String)
 
     @JvmInline
     value class FoodType(val type: String)

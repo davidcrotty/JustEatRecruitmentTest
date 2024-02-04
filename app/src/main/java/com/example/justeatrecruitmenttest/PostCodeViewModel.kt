@@ -30,7 +30,8 @@ class PostCodeViewModel(private val repository: RestuarantRepository,
                       ResturantModel(
                           name = it.name,
                           rating = it.rating.toString(),
-                          typesOfFood = it.foodTypes.map { it.type }.reduce { acc, s -> "$acc, $s" }
+                          typesOfFood = it.foodTypes.map { it.type }.reduce { acc, s -> "$acc, $s" },
+                          logoUrl = it.logoUrl
                       )
                     }
                     _uiState.value = PostCodeUIState.Success(listItems, postcode)
@@ -66,7 +67,7 @@ sealed class PostCodeUIState {
     class Success(val resturants: List<ResturantModel>, val searched: PostCode) : PostCodeUIState()
 }
 
-data class ResturantModel(val name: String, val rating: String, val typesOfFood: String)
+data class ResturantModel(val name: String, val rating: String, val typesOfFood: String, val logoUrl: String)
 
 @JvmInline
 value class PostCode(val text: String)

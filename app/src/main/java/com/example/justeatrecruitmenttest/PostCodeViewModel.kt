@@ -1,7 +1,6 @@
 package com.example.justeatrecruitmenttest
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.justeatrecruitmenttest.domain.RestuarantRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +31,7 @@ class PostCodeViewModel(private val repository: RestuarantRepository) : ViewMode
                           typesOfFood = it.foodTypes.map { it.type }.reduce { acc, s -> "$acc, $s" }
                       )
                     }
-                    _uiState.value = PostCodeUIState.Success(listItems)
+                    _uiState.value = PostCodeUIState.Success(listItems, postcode)
                 }.onFailure {
                     _uiState.value = PostCodeUIState.Error("Unable to fetch resturants")
                 }
@@ -50,7 +49,7 @@ sealed class PostCodeUIState {
     object Loading : PostCodeUIState()
     class Error(val message: String) : PostCodeUIState()
 
-    class Success(val result: List<ResturantModel>) : PostCodeUIState()
+    class Success(val resturants: List<ResturantModel>, val searched: PostCode) : PostCodeUIState()
 }
 
 data class ResturantModel(val name: String, val rating: String, val typesOfFood: String)

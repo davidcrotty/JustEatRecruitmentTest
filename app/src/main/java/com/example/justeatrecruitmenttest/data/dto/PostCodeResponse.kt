@@ -2,10 +2,10 @@ package com.example.justeatrecruitmenttest.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-class PostCodeResponseDTO {
+class PostCodeResponseDTO(
     @SerializedName("Restaurants")
     var resturants: List<ResturantsDTO>? = null
-}
+)
 
 class ResturantsDTO(
     @SerializedName("Name")

@@ -48,3 +48,4 @@ fun PostCodeScreen(viewModel: PostCodeViewModel) {
 # How would you improve the Just Eat APIs that you just used?
 * https on logo urls
 * Url width/height query params
+* Images use pngs with alpha

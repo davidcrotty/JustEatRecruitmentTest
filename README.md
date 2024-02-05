@@ -12,6 +12,8 @@
 * Extract hard coded values into strings and dimens for localisation and re-use
 * Error handling, logging, traceability and observability
 * Consider multi module depending on scope of application, App would compose other modules via abstraction (ie: Repo interface would live in domain module, a feature module for PostCode would be created and may implement said interface)
+* Input box doesnt disable when clicking auto detect outcode
+* Input box should fill with value when search is completed from using auto detect outcode
 
 # What was the most useful feature that was added to the latest version of your chosen language? Please include a snippet of code that shows how you've used it.
 * Value class feature. Inlines classes to their primitives whilst also protects against the primitive obsession codesmell.
